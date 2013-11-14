@@ -35,7 +35,7 @@ public class Sketch2 extends PApplet {
 		//  hint(ENABLE_OPENGL_4X_SMOOTH);
 		imgs = new ArrayList<PImage>();
 		
-		for(int i=0; i< 6; i++){
+		for(int i=0; i< 3; i++){
 			imgs.add(loadImage(i+".tif"));	
 		}
 		

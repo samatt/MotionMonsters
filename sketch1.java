@@ -1,5 +1,8 @@
 package motionMonsterToxi;
+import java.util.ArrayList;
+
 import processing.core.*;
+import processing.opengl.*;
 import toxi.sim.grayscott.*;
 import toxi.math.*;
 import toxi.color.*;
@@ -23,10 +26,25 @@ public class sketch1 extends PApplet{
 	float maskK;
 	float bgF;
 	float bgK;
-	
+	int index;
+	ArrayList<PImage> imgs;
+	boolean showImage;
 	public void setup(){
 
-		size(400,400);
+		size(512,384);
+		showImage = false;
+		imgs = new ArrayList<PImage>();
+		index =0;
+		for(int i=0; i< 13; i++){
+			imgs.add(loadImage(i+".png"));	
+			
+		}
+		
+		for(int i=0; i< 13; i++){
+			imgs.get(i).resize(512,384);	
+			
+		}
+		
 		cp5 = new ControlP5(this);
 		s = cp5.addSlider2D("mask")
 				.setPosition(00,0)
@@ -42,7 +60,7 @@ public class sketch1 extends PApplet{
 
 		smooth();
 		
-		gs=new PatternedGrayScott(400,400,false);
+		gs=new PatternedGrayScott(512,384,false);
 		gs.setCoefficients(0.020f, 0.077f, 0.16f, 0.08f);
 		// create a color gradient for 256 values
 		ColorGradient grad=new ColorGradient();
@@ -61,7 +79,7 @@ public class sketch1 extends PApplet{
 		toneMap=new ToneMap(0,0.33f,grad);
 		img=loadImage("reactDiffMask3.png");
 		// create a duo-tone gradient map with 256 steps
-		img.resize(400, 400	);
+		img.resize(width, height);
 		System.out.println(dataPath(""));
 
 		// this gradient is used to map simulation values to colors
@@ -76,6 +94,7 @@ public class sketch1 extends PApplet{
 		//		  gs.seedImage(img.pixels,img.width,img.height);
 		if (mousePressed) {
 			gs.setRect(mouseX, mouseY,20,20);
+		
 		}
 		loadPixels();
 		for(int i=0; i<10; i++) gs.update(1f);
@@ -85,6 +104,10 @@ public class sketch1 extends PApplet{
 			pixels[i]=toneMap.getARGBToneFor(gs.v[i]);
 		}
 		updatePixels();
+		if(showImage){
+			image(imgs.get(index),0,0);	
+		}
+		
 
 	}
 
@@ -129,7 +152,20 @@ public class sketch1 extends PApplet{
 		else if(key == 's'){
 			saveFrame();
 		}
-		
+		else if(key =='='){
+			
+			++index;
+			index = (index < imgs.size())?index:0;
+		}
+		else if(key == '-'){
+			--index;
+			index = (index > 0)?index:0;
+			
+		}
+		else if(key == 't')
+		{
+			showImage = !showImage;
+		}
 	}
 
 	class PatternedGrayScott extends GrayScott {
@@ -140,11 +176,13 @@ public class sketch1 extends PApplet{
 		public float getFCoeffAt(int x, int y) {
 			//x/=32;
 
-			img.loadPixels();
-			int loc = x + y*img.width;
-			float r = red(img.pixels[loc]);
+			imgs.get(index).loadPixels();
+			int loc = x + y*imgs.get(index).width;
+			float r = red(imgs.get(index).pixels[loc]);
+			float b = blue(imgs.get(index).pixels[loc]);
+			float g = green(imgs.get(index).pixels[loc]);
 			
-			if(r>5){
+			if(r<10 &&b<10 &&g<10){
 				return f +bgF ;
 			}
 			else{
@@ -154,10 +192,13 @@ public class sketch1 extends PApplet{
 		}
 
 		public float getKCoeffAt(int x, int y) {
-			img.loadPixels();
-			int loc = x + y*img.width;
-			float r = red   (img.pixels[loc]);
-			if(r>5){
+			imgs.get(index).loadPixels();
+			int loc = x + y*imgs.get(index).width;
+			float r = red   (imgs.get(index).pixels[loc]);
+			float b = blue(imgs.get(index).pixels[loc]);
+			float g = green(imgs.get(index).pixels[loc]);
+			
+			if(r<10 && b<10 &&g<10){
 				return k + bgK;
 			}
 			else{
